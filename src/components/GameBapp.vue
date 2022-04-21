@@ -1,15 +1,19 @@
 <template>
-  <my-wallet></my-wallet>
+  <div>
+    <my-wallet></my-wallet>
+    <betting-component v-on:complete-choose-number="onCompleteChooseNum" />
+  </div>
 </template>
 
 <script>
 import MyWallet from "@/components/MyWallet"
 import {mapGetters, mapMutations} from 'vuex'
 import KlaytnService from "@/klaytn/klaytnService"
+import BettingComponent from "@/components/BettingComponent";
 
 export default {
   name: "GameBapp",
-  components: {MyWallet},
+  components: {BettingComponent, MyWallet},
   mounted() {
     this.connect()
   },
@@ -46,6 +50,10 @@ export default {
         const balance = await this.klaytn.getBalance(this.myAddress)
         this.setBalance(balance)
       }
+    },
+
+    onCompleteChooseNum() {
+      this.getBalance()
     }
   }
 }

@@ -11,7 +11,7 @@
       <li v-on:click="clickNumber">5</li>
     </ul>
     <div v-if="pending" id="loader">Loading...</div>
-    <div class="event" v-if="winEvent">
+    <div class="event" v-else-if="winEvent">
       Won: {{winEvent.result}}
       Reward: {{winEvent.amount}} Klay
     </div>
