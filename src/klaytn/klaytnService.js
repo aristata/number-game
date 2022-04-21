@@ -1,8 +1,9 @@
 // 앞서 만든 caver 라이브러리 임포트
-import {caver} from "@/klaytn/caver";
+import {caver, contractInstance} from "@/klaytn/caver";
 
 export default class KlaytnService {
-    constructor() {}
+    constructor() {
+    }
     
     // 월렛 초기화
     init() {
@@ -30,7 +31,7 @@ export default class KlaytnService {
     
     // KeyStore 파일로 로그인(지갑 연동) 하기
     async loginWithKeystore(keystore, password) {
-        const { privateKey: privateKeyFromKeystore } = caver.klay.accounts.decrypt(keystore, password)
+        const {privateKey: privateKeyFromKeystore} = caver.klay.accounts.decrypt(keystore, password)
         await this.integrateWallet(privateKeyFromKeystore)
         return true
     }
@@ -62,5 +63,41 @@ export default class KlaytnService {
         } else {
             return null
         }
+    }
+    
+    play(number, amount, dispatch, errorCb) {
+        const walletInstance = caver.klay.accounts.wallet && caver.klay.accounts.wallet[0]
+        
+        if (!walletInstance) {
+            console.log("지갑을 발견하지 못했습니다")
+            return
+        }
+        
+        // 클레이를 펩으로 변환
+        amount = caver.utils.toPeb(amount, "KLAY")
+        
+        const address = walletInstance.address
+        contractInstance().methods.play(number)
+            .send({
+                from: address,
+                gas: "100000000",
+                value: amount
+            })
+            .once("transactionHash", (txHash) => {
+                console.log(`
+                    Sending a transaction...
+                    txHash: ${txHash}
+                    `)
+            })
+            .once("receipt", (receipt) => {
+                console.log(`
+                    Received receipt! (#${receipt.blockNumber} ,${receipt.transactionHash})
+                    `, receipt)
+                
+                dispatch(receipt)
+            })
+            .once("error", (error) => {
+                errorCb(error.message)
+            })
     }
 }
