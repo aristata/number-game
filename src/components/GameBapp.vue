@@ -18,17 +18,17 @@ export default {
     this.connect()
   },
   computed: {
-    ...mapGetters("myWallet", [
-        "klaytn",
-        "myAddress"
+    ...mapGetters("walletStore", [
+      "klaytn",
+      "myAddress"
     ])
   },
   methods: {
-    ...mapMutations("myWallet", [
-        "setKlaytn",
-        "setIsConnectWallet",
-        "setMyAddress",
-        "setBalance"
+    ...mapMutations("walletStore", [
+      "setKlaytn",
+      "setIsConnectWallet",
+      "setMyAddress",
+      "setBalance"
     ]),
 
     connect() {

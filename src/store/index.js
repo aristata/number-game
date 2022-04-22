@@ -14,6 +14,6 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
-    MyWallet: myWallet
+    walletStore: myWallet
   }
 })

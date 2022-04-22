@@ -12,15 +12,15 @@
     </ul>
     <div v-if="pending" id="loader">Loading...</div>
     <div class="event" v-else-if="winEvent">
-      Won: {{winEvent.result}}
-      Reward: {{winEvent.amount}} Klay
+      Won: {{ winEvent.result }}
+      Reward: {{ winEvent.amount }} Klay
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { caver } from "@/klaytn/caver";
+import {mapGetters} from "vuex";
+import {caver} from "@/klaytn/caver";
 
 export default {
   name: "BettingComponent",
@@ -32,8 +32,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("myWallet", [
-        "klaytn"
+    ...mapGetters("walletStore", [
+      "klaytn"
     ])
   },
   methods: {
@@ -43,20 +43,19 @@ export default {
       this.pending = true
 
       this.winEvent = {}
-      this.klaytn.play(event.target.innerHTML, this.amount, (receipt) => {
-        const result = receipt.events.Won.returnValues[0]
-        const amount = receipt.events.Won.returnValues[1]
-
-        this.winEvent.result = result
-        this.winEvent.amount = caver.utils.fromPeb(amount, "KLAY")
-
-        this.$emit("complete-choose-number")
-
-        this.pending = false
-      }, (error) => {
-        console.error(error)
-        this.pending = false
-      })
+      this.klaytn.play(event.target.innerHTML, this.amount)
+          .then(response => {
+            const result = response.events.Won.returnValues[0]
+            const amount = response.events.Won.returnValues[1]
+            this.winEvent.result = result
+            this.winEvent.amount = caver.utils.fromPeb(amount, "KLAY")
+            this.$emit("complete-choose-number")
+            this.pending = false
+          })
+          .catch(error => {
+            console.error(error)
+            this.pending = false
+          })
     }
   }
 }
@@ -67,6 +66,7 @@ export default {
   margin-top: 50px;
   text-align: center;
 }
+
 ul {
   margin: 25px;
   list-style-type: none;
@@ -74,6 +74,7 @@ ul {
   grid-template-columns: repeat(5, 1fr);
   grid-column-gap: 25px;
 }
+
 li {
   padding: 20px;
   margin-right: 3px;
@@ -83,14 +84,17 @@ li {
   color: #4b08e0;
   box-shadow: 3px 5px 1px #4b08e0;
 }
+
 li:hover {
   background-color: #4b08e0;
   color: white;
   box-shadow: 0px 0px 1px #4b08e0;
 }
+
 li:active {
   opacity: 0.7;
 }
+
 * {
   color: #444444;
 }

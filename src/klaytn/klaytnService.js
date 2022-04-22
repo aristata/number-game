@@ -65,39 +65,28 @@ export default class KlaytnService {
         }
     }
     
-    play(number, amount, dispatch, errorCb) {
+    play(number, amount) {
         const walletInstance = caver.klay.accounts.wallet && caver.klay.accounts.wallet[0]
-        
+    
         if (!walletInstance) {
             console.log("지갑을 발견하지 못했습니다")
             return
         }
-        
+    
         // 클레이를 펩으로 변환
         amount = caver.utils.toPeb(amount, "KLAY")
         
         const address = walletInstance.address
-        contractInstance().methods.play(number)
+        return contractInstance().methods.play(number)
             .send({
                 from: address,
                 gas: "100000000",
                 value: amount
             })
-            .once("transactionHash", (txHash) => {
-                console.log(`
-                    Sending a transaction...
-                    txHash: ${txHash}
-                    `)
-            })
-            .once("receipt", (receipt) => {
-                console.log(`
-                    Received receipt! (#${receipt.blockNumber} ,${receipt.transactionHash})
-                    `, receipt)
-                
-                dispatch(receipt)
-            })
-            .once("error", (error) => {
-                errorCb(error.message)
+            .then(response => {
+                console.log(`Sending a transaction... txHash: ${response.transactionHash} `)
+                console.log(`Received receipt! (#${response.blockNumber})`, response)
+                return response
             })
     }
 }
